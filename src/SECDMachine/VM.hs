@@ -50,8 +50,9 @@ exec secd = Error $ "Invalid Machine State: " ++ (show secd)
 run' (Continue secd) = run' (exec secd)
 run' otherwise = otherwise 
 
-run code = unwrap $ run' $ Continue $ SECD [] [] code []
-    where unwrap (Finished stack) = head' stack
+run code = unwrap $ run' initSECD
+    where initSECD = Continue $ SECD [] [] code []
+          unwrap (Finished stack) = head' stack
           unwrap (Error msg) = Left msg
           head' (v:_) = Right v
           head' [] = Left "No valid result left on stack"
