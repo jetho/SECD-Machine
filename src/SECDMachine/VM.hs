@@ -42,8 +42,7 @@ exec :: SECD -> Step SECD Stack
 exec (SECD s e ((LDC n):c) d) = Continue $ SECD ((Num n):s) e c d
 
 
-exec (SECD s e [STOP] d) = Finished s
-exec (SECD s e (STOP:c) d) = Finished s
+exec (SECD s e (STOP:_) d) = Finished s
 
 exec secd = Error $ "Invalid Machine State: " ++ (show secd)
 
