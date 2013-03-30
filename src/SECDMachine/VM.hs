@@ -22,6 +22,7 @@ data Value =  Num Int
             | Bool Bool
             | Cons Value Value
             | Closure Sequence Env
+            | Nil
               deriving (Eq, Show)
 
 
@@ -42,6 +43,9 @@ exec :: SECD -> Step SECD Stack
 exec (SECD s e ((LDC n):c) d) = Continue $ SECD ((Num n):s) e c d
 exec (SECD ((Num y):(Num x):s) e (ADD:c) d) = Continue $ SECD ((Num (x+y)):s) e c d
 exec (SECD ((Num y):(Num x):s) e (SUB:c) d) = Continue $ SECD ((Num (x-y)):s) e c d
+exec (SECD (a:b:s) e (CONS:c) d) = Continue $ SECD ((Cons a b):s) e c d
+exec (SECD ((Cons a _):s) e (CAR:c) d) = Continue $ SECD (a:s) e c d
+exec (SECD s e (NIL:c) d) = Continue $ SECD (Nil:s) e c d
 
 exec (SECD s e (STOP:_) d) = Finished s
 
