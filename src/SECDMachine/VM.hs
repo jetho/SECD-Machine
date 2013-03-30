@@ -40,7 +40,8 @@ data Step a b =  Continue a
 exec :: SECD -> Step SECD Stack
 
 exec (SECD s e ((LDC n):c) d) = Continue $ SECD ((Num n):s) e c d
-
+exec (SECD ((Num y):(Num x):s) e (ADD:c) d) = Continue $ SECD ((Num (x+y)):s) e c d
+exec (SECD ((Num y):(Num x):s) e (SUB:c) d) = Continue $ SECD ((Num (x-y)):s) e c d
 
 exec (SECD s e (STOP:_) d) = Finished s
 
