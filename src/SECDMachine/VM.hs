@@ -40,13 +40,29 @@ data Step a b =  Continue a
 
 exec :: SECD -> Step SECD Stack
 
+-- load constant
 exec (SECD s e ((LDC n):c) d) = Continue $ SECD ((Num n):s) e c d
-exec (SECD ((Num y):(Num x):s) e (ADD:c) d) = Continue $ SECD ((Num (x+y)):s) e c d
-exec (SECD ((Num y):(Num x):s) e (SUB:c) d) = Continue $ SECD ((Num (x-y)):s) e c d
+
+-- arithmetic operators
+exec (SECD ((Num y):(Num x):s) e (ADD:c) d) = Continue $ SECD ((Num (x + y)):s) e c d
+exec (SECD ((Num y):(Num x):s) e (SUB:c) d) = Continue $ SECD ((Num (x - y)):s) e c d
+exec (SECD ((Num y):(Num x):s) e (MUL:c) d) = Continue $ SECD ((Num (x * y)):s) e c d
+exec (SECD ((Num y):(Num x):s) e (DIV:c) d) = Continue $ SECD ((Num (x `div` y)):s) e c d
+exec (SECD ((Num y):(Num x):s) e (REM:c) d) = Continue $ SECD ((Num (x `rem` y)):s) e c d
+
+-- operators for testing equality
+exec (SECD ((Num y):(Num x):s) e (EQL:c) d) = Continue $ SECD ((Bool (x == y)):s) e c d
+exec (SECD ((Num y):(Num x):s) e (LEQ:c) d) = Continue $ SECD ((Bool (x <= y)):s) e c d
+
+-- list operators
 exec (SECD (a:b:s) e (CONS:c) d) = Continue $ SECD ((Cons a b):s) e c d
 exec (SECD ((Cons a _):s) e (CAR:c) d) = Continue $ SECD (a:s) e c d
+exec (SECD ((Cons _ b):s) e (CDR:c) d) = Continue $ SECD (b:s) e c d
+
+-- push nil pointer
 exec (SECD s e (NIL:c) d) = Continue $ SECD (Nil:s) e c d
 
+-- exit evaluation
 exec (SECD s e (STOP:_) d) = Finished s
 
 exec secd = Error $ "Invalid Machine State: " ++ (show secd)
