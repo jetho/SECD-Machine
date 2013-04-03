@@ -59,6 +59,12 @@ exec (SECD (a:b:s) e (CONS:c) d) = Continue $ SECD ((Cons a b):s) e c d
 exec (SECD ((Cons a _):s) e (CAR:c) d) = Continue $ SECD (a:s) e c d
 exec (SECD ((Cons _ b):s) e (CDR:c) d) = Continue $ SECD (b:s) e c d
 
+-- test for atomic value
+exec (SECD (a:s) e (ATOM:c) d) = Continue $ SECD ((Bool (atomic a)):s) e c d
+    where atomic (Num _) = True
+          atomic (Bool _) = True
+          atomic _ = False
+
 -- push nil pointer
 exec (SECD s e (NIL:c) d) = Continue $ SECD (Nil:s) e c d
 
