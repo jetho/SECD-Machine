@@ -16,6 +16,7 @@ module SECDMachine.VM where
 
 import SECDMachine.Commands
 import Control.Monad
+import Data.Maybe
 
 
 data Value =  Num Int
@@ -38,10 +39,20 @@ data Step a b =  Continue a
                | Error String
 
 
+-- locate a binding in the environment
+locate :: Level -> Pos -> Env -> Maybe Value
+locate lev pos = nth lev >=> nth pos 
+    where nth n = listToMaybe . drop n
+
+
 exec :: SECD -> Step SECD Stack
 
--- load constant
+-- load operators
 exec (SECD s e ((LDC n):c) d) = Continue $ SECD ((Num n):s) e c d
+exec secd@(SECD s e (ld@(LD (i, j)):c) d) = 
+    maybe (Error $ "No valid binding found for '" ++ (show ld) ++ "' in " ++ (show secd)) 
+          (\v -> Continue $ SECD (v:s) e c d)
+          (locate i j e)
 
 -- arithmetic operators
 exec (SECD ((Num y):(Num x):s) e (ADD:c) d) = Continue $ SECD ((Num (x + y)):s) e c d

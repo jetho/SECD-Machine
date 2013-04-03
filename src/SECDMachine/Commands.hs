@@ -29,7 +29,7 @@ data Command = ADD
              | EQL
              | LEQ 
              | LDC Int
-             | LD Level Pos
+             | LD (Level, Pos)
              | STOP
              | NIL
              | JOIN
