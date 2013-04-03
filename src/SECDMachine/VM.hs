@@ -91,6 +91,5 @@ run code = unwrap $ run' initSECD
     where initSECD = Continue $ SECD [] [] code []
           unwrap (Finished stack) = head' stack
           unwrap (Error msg) = Left msg
-          head' (v:_) = Right v
-          head' [] = Left "No valid result left on stack"
-
+          head' = maybe (Left "No valid result left on stack") Right . listToMaybe
+ 
