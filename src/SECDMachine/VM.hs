@@ -19,6 +19,9 @@ import Control.Monad
 import Data.Maybe
 
 
+type ErrorMsg = String
+
+-- allowed values for the execution stack
 data Value =  Num Int
             | Bool Bool
             | Cons Value Value
@@ -27,26 +30,33 @@ data Value =  Num Int
               deriving (Eq, Show)
 
 
-type ErrorMsg = String
+-- the structure of the SECD machine
 type Stack = [Value]
 type Env = [[Value]]
 type Code = [Command]
 type Dump = [(Stack, Env, Code)]
 
-
 data SECD = SECD Stack Env Code Dump deriving Show
 
+-- data types for controlling the execution
 data Step a b =  Continue a
                | Finished b
                | Error String
 
 
+-- helper functions
+
 -- locate a binding in the environment
 locate :: Level -> Pos -> Env -> Maybe Value
 locate lev pos = nth lev >=> nth pos 
-    where nth n = listToMaybe . drop n
+    where nth n = listToMaybe . drop (n-1)
+
+-- convert a cons structure to a list
+cons2list Nil = []
+cons2list (Cons a b) = a : cons2list b
 
 
+-- execute one instruction
 exec :: SECD -> Step SECD Stack
 
 -- load constant
@@ -88,6 +98,11 @@ exec (SECD (a:s) e (ATOM:c) d) = Continue $ SECD ((Bool (atomic a)):s) e c d
     where atomic (Num _) = True
           atomic (Bool _) = True
           atomic _ = False
+
+-- function application
+exec (SECD ((Closure c' e'):args:s) e (AP:c) d) = Continue $ SECD [] extendedEnv c' ((s,e,c):d)
+    where extendedEnv = (cons2list args):e'
+exec (SECD (res:_) e' (RTN:_) ((s,e,c):d)) = Continue $ SECD (res:s) e c d
 
 -- push nil pointer
 exec (SECD s e (NIL:c) d) = Continue $ SECD (Nil:s) e c d
