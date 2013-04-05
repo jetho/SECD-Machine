@@ -21,7 +21,6 @@ import Data.Maybe
 
 type ErrorMsg = String
 
--- allowed values for the execution stack
 data Value =  Num Int
             | Bool Bool
             | Cons Value Value
@@ -38,7 +37,7 @@ type Dump = [(Stack, Env, Code)]
 
 data SECD = SECD Stack Env Code Dump deriving Show
 
--- data types for controlling the execution
+-- data types for execution control
 data Step a b =  Continue a
                | Finished b
                | Error String
