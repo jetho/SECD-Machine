@@ -130,7 +130,15 @@ run code = unwrap $ run' initSECD
           unwrap (Finished stack) = head' stack
           unwrap (Error msg) = Left msg
           head' = maybe (Left "No valid result left on stack") Right . listToMaybe
- 
+
+{-- recursive fact
+let code1 = [DUM, NIL]
+let code2 = [LDF [LD (0,0), LDC 0, EQL, SEL [LDC 1, JOIN] [NIL, LD (0,0), LDC 1, SUB, CONS, LD (1,0), AP, LD (0,0), MUL, JOIN], RTN], CONS]
+let code3 = [LDF [NIL, LDC 6, CONS, LD (1,0), AP, RTN]]
+let code4 = [RAP, STOP]
+let codeF = code1 ++ code2 ++ code3 ++ code4
+run codeF
+--}
 
 {--
 let code1 = [DUM, NIL]
