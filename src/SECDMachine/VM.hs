@@ -48,7 +48,7 @@ data Step a b =  Continue a
 -- locate a binding in the environment
 locate :: Level -> Pos -> Env -> Maybe Value
 locate lev pos = nth lev >=> nth pos 
-    where nth n = listToMaybe . drop (n-1)
+    where nth n = listToMaybe . drop n
 
 -- convert a cons structure to a list
 cons2list Nil = []
@@ -86,6 +86,9 @@ exec (SECD (a:b:s) e (CONS:c) d) = Continue $ SECD ((Cons a b):s) e c d
 exec (SECD ((Cons a _):s) e (CAR:c) d) = Continue $ SECD (a:s) e c d
 exec (SECD ((Cons _ b):s) e (CDR:c) d) = Continue $ SECD (b:s) e c d
 
+-- push nil pointer
+exec (SECD s e (NIL:c) d) = Continue $ SECD (Nil:s) e c d
+
 -- conditional operators
 exec (SECD ((Bool b):s) e ((SEL tc fc):c) d) = Continue $ SECD s e (select b) (([],[],c):d)
     where select True = tc
@@ -100,16 +103,24 @@ exec (SECD (a:s) e (ATOM:c) d) = Continue $ SECD ((Bool (atomic a)):s) e c d
 
 -- function application
 exec (SECD ((Closure c' e'):args:s) e (AP:c) d) = Continue $ SECD [] extendedEnv c' ((s,e,c):d)
-    where extendedEnv = (cons2list args):e'
-exec (SECD (res:_) e' (RTN:_) ((s,e,c):d)) = Continue $ SECD (res:s) e c d
+    where extendedEnv = (cons2list args) : e'
 
--- push nil pointer
-exec (SECD s e (NIL:c) d) = Continue $ SECD (Nil:s) e c d
+-- recursive function application (letrec)
+exec (SECD s e (DUM:c) d) = Continue $ SECD s ([]:e) c d
+exec (SECD ((Closure c' e'):bs:s) ([]:e) (RAP:c) d) = Continue $ SECD [] recEnv c' ((s,e,c):d)
+    where recEnv = (map bind bindings) : e'
+          bind (Closure c ([]:_)) = Closure c recEnv
+          bind otherwise = otherwise
+          bindings = cons2list bs
+
+-- return from function and leave result on top of stack
+exec (SECD (res:_) e' (RTN:_) ((s,e,c):d)) = Continue $ SECD (res:s) e c d
 
 -- exit evaluation
 exec (SECD s e (STOP:_) d) = Finished s
 
 exec secd = Error $ "Invalid Machine State: " ++ (show secd)
+
 
 run' (Continue secd) = run' (exec secd)
 run' otherwise = otherwise 
