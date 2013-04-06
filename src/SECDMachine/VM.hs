@@ -110,7 +110,6 @@ exec (SECD s e (DUM:c) d) = Continue $ SECD s ([]:e) c d
 exec (SECD ((Closure c' e'):bs:s) ([]:e) (RAP:c) d) = Continue $ SECD [] recEnv c' ((s,e,c):d)
     where recEnv = (map bind bindings) : e'
           bind (Closure c ([]:_)) = Closure c recEnv
-          bind otherwise = otherwise
           bindings = cons2list bs
 
 -- return from function and leave result on top of stack
