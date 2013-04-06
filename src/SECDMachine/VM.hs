@@ -108,7 +108,7 @@ exec (SECD ((Closure c' e'):args:s) e (AP:c) d) = Continue $ SECD [] extendedEnv
 -- recursive function application (letrec)
 exec (SECD s e (DUM:c) d) = Continue $ SECD s ([]:e) c d
 exec (SECD ((Closure c' e'):bs:s) ([]:e) (RAP:c) d) = Continue $ SECD [] recEnv c' ((s,e,c):d)
-    where recEnv = (map bind bindings) : e'
+    where recEnv = (map bind bindings) : recEnv
           bind (Closure c ([]:_)) = Closure c recEnv
           bindings = cons2list bs
 
@@ -131,3 +131,13 @@ run code = unwrap $ run' initSECD
           unwrap (Error msg) = Left msg
           head' = maybe (Left "No valid result left on stack") Right . listToMaybe
  
+
+{--
+let code1 = [DUM, NIL]
+let code2 = [LDF [LD (0,0), LDC 1, ADD, LDC 1000000, EQL, SEL [NIL, LD (1,0), AP, JOIN] [NIL, LD (0,0), LDC 1, ADD, CONS, LD (1,1), AP, JOIN], RTN], CONS]
+let code3 = [LDF [LDC 999, RTN], CONS]
+let code4 = [LDF [NIL, LDC 1, CONS, LDC 2, CONS, LD (1,1), AP, RTN]]
+let codeF = code1 ++ code2 ++ code3 ++ code4 ++ code5
+run codeF
+--}
+
