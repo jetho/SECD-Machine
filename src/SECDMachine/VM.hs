@@ -140,11 +140,12 @@ let codeF = code1 ++ code2 ++ code3 ++ code4
 run codeF
 --}
 
-{--
+{-- mutual recursion odd <-> even
 let code1 = [DUM, NIL]
-let code2 = [LDF [LD (0,0), LDC 1, ADD, LDC 1000000, EQL, SEL [NIL, LD (1,0), AP, JOIN] [NIL, LD (0,0), LDC 1, ADD, CONS, LD (1,1), AP, JOIN], RTN], CONS]
-let code3 = [LDF [LDC 999, RTN], CONS]
-let code4 = [LDF [NIL, LDC 1, CONS, LDC 2, CONS, LD (1,1), AP, RTN]]
+let code2 = [LDF [LD (0,0), LDC 0, EQL, SEL [LDC 1, LDC 1, EQL, JOIN] [NIL, LD (0,0), LDC 1, SUB, CONS, LD (1,0), AP, JOIN], RTN], CONS]
+let code3 = [LDF [LD (0,0), LDC 0, EQL, SEL [LDC 1, LDC 0, EQL, JOIN] [NIL, LD (0,0), LDC 1, SUB, CONS, LD (1,1), AP, JOIN], RTN], CONS]
+let code4 = [LDF [NIL, LDC 6, CONS, LD (1,1), AP, RTN]]
+let code5 = [RAP, STOP]
 let codeF = code1 ++ code2 ++ code3 ++ code4 ++ code5
 run codeF
 --}
