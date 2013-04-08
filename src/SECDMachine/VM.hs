@@ -101,7 +101,7 @@ exec (SECD (a:s) e (ATOM:c) d) = Continue $ SECD ((Bool (atomic a)):s) e c d
           atomic (Bool _) = True
           atomic _ = False
 
--- function application
+-- function application (let)
 exec (SECD ((Closure c' e'):args:s) e (AP:c) d) = Continue $ SECD [] extendedEnv c' ((s,e,c):d)
     where extendedEnv = (cons2list args) : e'
 
