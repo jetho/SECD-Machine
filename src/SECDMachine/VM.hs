@@ -58,7 +58,6 @@ cons2list (Cons a b) = a : cons2list b
 extendEnv env args = (cons2list args) : env
 
 
-
 -- execute one instruction
 exec :: SECD -> Step SECD Stack
 
