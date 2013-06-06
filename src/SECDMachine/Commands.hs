@@ -34,9 +34,10 @@ data Command = ADD
              | NIL
              | JOIN
              | SEL TrueSequence FalseSequence
-             | TRSEL TrueSequence FalseSequence
+             | TSEL TrueSequence FalseSequence
              | LDF Sequence
              | AP
+             | TAP
              | CONS
              | CAR
              | CDR

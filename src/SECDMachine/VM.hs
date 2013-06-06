@@ -98,7 +98,7 @@ exec (SECD s e (NIL:c) d) = Continue $ SECD (Nil:s) e c d
 
 -- conditional operators
 -- tail recursive "if"
-exec (SECD ((Bool b):s) e ((TRSEL tc fc):c) d) = Continue $ SECD s e (select b tc fc) d
+exec (SECD ((Bool b):s) e ((TSEL tc fc):c) d) = Continue $ SECD s e (select b tc fc) d
 -- non-tail recursive
 exec (SECD ((Bool b):s) e ((SEL tc fc):c) d) = Continue $ SECD s e (select b tc fc) (([],[],c):d)
 exec (SECD s e [JOIN] (([],[],c):d)) = Continue $ SECD s e c d 
@@ -111,7 +111,7 @@ exec (SECD (a:s) e (ATOM:c) d) = Continue $ SECD ((Bool (atomic a)):s) e c d
 
 -- function application (let)
 -- optimize tail calls
-exec (SECD ((Closure c' e'):args:s) e (AP:RTN:_) d) = Continue $ SECD s (extendEnv e' args) c' d
+exec (SECD ((Closure c' e'):args:s) e (TAP:_) d) = Continue $ SECD s (extendEnv e' args) c' d
 -- non-tail calls
 exec (SECD ((Closure c' e'):args:s) e (AP:c) d) = Continue $ SECD [] (extendEnv e' args) c' ((s,e,c):d)
 
