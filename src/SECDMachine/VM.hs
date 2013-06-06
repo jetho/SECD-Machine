@@ -57,6 +57,10 @@ cons2list (Cons a b) = a : cons2list b
 -- extending an environment for function application
 extendEnv env args = (cons2list args) : env
 
+-- select branch of conditional
+select True = const
+select False = flip const
+
 
 -- execute one instruction
 exec :: SECD -> Step SECD Stack
@@ -93,9 +97,10 @@ exec (SECD ((Cons _ b):s) e (CDR:c) d) = Continue $ SECD (b:s) e c d
 exec (SECD s e (NIL:c) d) = Continue $ SECD (Nil:s) e c d
 
 -- conditional operators
-exec (SECD ((Bool b):s) e ((SEL tc fc):c) d) = Continue $ SECD s e (select b) (([],[],c):d)
-    where select True = tc
-          select False = fc
+-- tail recursive "if"
+exec (SECD ((Bool b):s) e ((TRSEL tc fc):c) d) = Continue $ SECD s e (select b tc fc) d
+-- non-tail recursive
+exec (SECD ((Bool b):s) e ((SEL tc fc):c) d) = Continue $ SECD s e (select b tc fc) (([],[],c):d)
 exec (SECD s e [JOIN] (([],[],c):d)) = Continue $ SECD s e c d 
 
 -- test for atomic value
