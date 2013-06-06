@@ -1,4 +1,4 @@
 SECD-Machine
 ============
 
-An Implementation of the SECD Virtual Machine in Haskell
+An Implementation of the (tail recursive) SECD Virtual Machine in Haskell.

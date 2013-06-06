@@ -54,6 +54,10 @@ locate lev pos = nth lev >=> nth pos
 cons2list Nil = []
 cons2list (Cons a b) = a : cons2list b
 
+-- extending an environment for function application
+extendEnv env args = (cons2list args) : env
+
+
 
 -- execute one instruction
 exec :: SECD -> Step SECD Stack
@@ -102,8 +106,10 @@ exec (SECD (a:s) e (ATOM:c) d) = Continue $ SECD ((Bool (atomic a)):s) e c d
           atomic _ = False
 
 -- function application (let)
-exec (SECD ((Closure c' e'):args:s) e (AP:c) d) = Continue $ SECD [] extendedEnv c' ((s,e,c):d)
-    where extendedEnv = (cons2list args) : e'
+-- optimize tail calls
+exec (SECD ((Closure c' e'):args:s) e (AP:RTN:_) d) = Continue $ SECD s (extendEnv e' args) c' d
+-- non-tail calls
+exec (SECD ((Closure c' e'):args:s) e (AP:c) d) = Continue $ SECD [] (extendEnv e' args) c' ((s,e,c):d)
 
 -- recursive function application (letrec)
 exec (SECD s e (DUM:c) d) = Continue $ SECD s ([]:e) c d
