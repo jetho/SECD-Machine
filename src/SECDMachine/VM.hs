@@ -117,10 +117,10 @@ exec (SECD ((Closure c' e'):args:s) e (AP:c) d) = Continue $ SECD [] (extendEnv 
 
 -- recursive function application (letrec)
 exec (SECD s e (DUM:c) d) = Continue $ SECD s ([]:e) c d
-exec (SECD ((Closure c' e'):bs:s) ([]:e) (RAP:c) d) = Continue $ SECD [] recEnv c' ((s,e,c):d)
-    where recEnv = (map bind bindings) : recEnv
-          bind (Closure c ([]:_)) = Closure c recEnv
-          bindings = cons2list bs
+exec (SECD ((Closure c' e'):bs:s) ([]:e) (RAP:c) d) = Continue $ SECD [] (recBindings:e) c' ((s,e,c):d)
+    where recBindings = map bind (cons2list bs)
+          bind (Closure c ([]:e)) = Closure c (recBindings:e)
+          bind x = x
 
 -- return from function and leave result on top of stack
 exec (SECD (res:_) e' (RTN:_) ((s,e,c):d)) = Continue $ SECD (res:s) e c d
