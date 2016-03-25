@@ -47,7 +47,7 @@ data Step a b =  Continue a
 
 -- locate a binding in the environment
 locate :: Level -> Pos -> Env -> Maybe Value
-locate lev pos = nth lev >=> nth pos 
+locate lev pos = nth lev >=> nth pos
     where nth n = listToMaybe . drop n
 
 -- convert a cons structure to a list
@@ -72,8 +72,8 @@ exec (SECD s e ((LDC n):c) d) = Continue $ SECD ((Num n):s) e c d
 exec (SECD s e ((LDF c'):c) d) = Continue $ SECD ((Closure c' e):s) e c d
 
 -- load variable binding
-exec secd@(SECD s e (ld@(LD (i, j)):c) d) = 
-    maybe (Error $ "No valid binding found for '" ++ (show ld) ++ "' in " ++ (show secd)) 
+exec secd@(SECD s e (ld@(LD (i, j)):c) d) =
+    maybe (Error $ "No valid binding found for '" ++ (show ld) ++ "' in " ++ (show secd))
           (\v -> Continue $ SECD (v:s) e c d)
           (locate i j e)
 
@@ -101,7 +101,7 @@ exec (SECD s e (NIL:c) d) = Continue $ SECD (Nil:s) e c d
 exec (SECD ((Bool b):s) e ((TSEL tc fc):c) d) = Continue $ SECD s e (select b tc fc) d
 -- non-tail recursive
 exec (SECD ((Bool b):s) e ((SEL tc fc):c) d) = Continue $ SECD s e (select b tc fc) (([],[],c):d)
-exec (SECD s e [JOIN] (([],[],c):d)) = Continue $ SECD s e c d 
+exec (SECD s e [JOIN] (([],[],c):d)) = Continue $ SECD s e c d
 
 -- test for atomic value
 exec (SECD (a:s) e (ATOM:c) d) = Continue $ SECD ((Bool (atomic a)):s) e c d
@@ -132,7 +132,7 @@ exec secd = Error $ "Invalid Machine State: " ++ (show secd)
 
 
 run' (Continue secd) = run' (exec secd)
-run' otherwise = otherwise 
+run' otherwise = otherwise
 
 run :: Code -> Either ErrorMsg Value
 run code = unwrap $ run' initSECD
@@ -144,7 +144,7 @@ run code = unwrap $ run' initSECD
 {-- recursive fact
 let code1 = [DUM, NIL]
 let code2 = [LDF [LD (0,0), LDC 0, EQL, SEL [LDC 1, JOIN] [NIL, LD (0,0), LDC 1, SUB, CONS, LD (1,0), AP, LD (0,0), MUL, JOIN], RTN], CONS]
-let code3 = [LDF [NIL, LDC 6, CONS, LD (1,0), AP, RTN]]
+let code3 = [LDF [NIL, LDC 6, CONS, LD (0,0), AP, RTN]]
 let code4 = [RAP, STOP]
 let codeF = code1 ++ code2 ++ code3 ++ code4
 run codeF
@@ -154,7 +154,7 @@ run codeF
 let code1 = [DUM, NIL]
 let code2 = [LDF [LD (0,0), LDC 0, EQL, SEL [LDC 1, LDC 1, EQL, JOIN] [NIL, LD (0,0), LDC 1, SUB, CONS, LD (1,0), AP, JOIN], RTN], CONS]
 let code3 = [LDF [LD (0,0), LDC 0, EQL, SEL [LDC 1, LDC 0, EQL, JOIN] [NIL, LD (0,0), LDC 1, SUB, CONS, LD (1,1), AP, JOIN], RTN], CONS]
-let code4 = [LDF [NIL, LDC 6, CONS, LD (1,1), AP, RTN]]
+let code4 = [LDF [NIL, LDC 6, CONS, LD (0,1), AP, RTN]]
 let code5 = [RAP, STOP]
 let codeF = code1 ++ code2 ++ code3 ++ code4 ++ code5
 run codeF
